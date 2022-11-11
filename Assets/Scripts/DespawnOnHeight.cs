@@ -15,7 +15,13 @@ public class DespawnOnHeight : MonoBehaviour
     void Update()
     {
         // switch to Game Over scene if below floor
-		if (transform.parent.transform.position.y < 0) {
+		if (
+            transform.position.y < 0 ||
+            transform.parent.transform.position.y < 0
+        ) {
+            AudioSource audio = DontDestroy.instance.GetComponents<AudioSource>()[0];
+            audio.Pause();
+            Destroy(DontDestroy.instance);
             SceneManager.LoadScene("GameOver");
 		}
     }
