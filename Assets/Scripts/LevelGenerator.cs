@@ -21,6 +21,9 @@ public class LevelGenerator : MonoBehaviour {
 
 	public int mazeSize;
 
+	// 2D array representing hole locations in x,z
+	private bool[,] holeLocations;
+
 	// spawns at the end of the maze generation
 	public GameObject pickup;
 
@@ -38,6 +41,9 @@ public class LevelGenerator : MonoBehaviour {
 
 		// initialize map 2D array
 		mapData = GenerateMazeData();
+
+		// generate hole locations
+		holeLocations = GenerateHolesData();
 
 		// create actual maze blocks from maze boolean data
 		for (int z = 0; z < mazeSize; z++) {
@@ -58,7 +64,11 @@ public class LevelGenerator : MonoBehaviour {
 				}
 
 				// create floor and ceiling
-				CreateChildPrefab(floorPrefab, floorParent, x, 0, z);
+
+				// create floor if hole not found in random generated hole locations
+				if (holeLocations[z, x] == false) {
+					CreateChildPrefab(floorPrefab, floorParent, x, 0, z);
+				}
 
 				if (generateRoof) {
 					CreateChildPrefab(ceilingPrefab, wallsParent, x, 4, z);
@@ -115,6 +125,35 @@ public class LevelGenerator : MonoBehaviour {
 		}
 
 		return data;
+	}
+
+	bool[,] GenerateHolesData() {
+		bool[,] holes = new bool[mazeSize, mazeSize];
+
+		// initialize all to false
+		for (int y = 0; y < mazeSize; y++) {
+			for (int x = 0; x < mazeSize; x++) {
+				holes[y, x] = false;
+			}
+		}
+
+		// spawn n holes, where n is 10% of maze size
+		// i.e. 3 for maze size of 30
+		int numberOfHoles = (int)(mazeSize * 0.1);
+
+		// determine random holes
+		for (int i = 0; i < numberOfHoles; i++) {
+			int z = Random.Range(0, mazeSize);
+			int x = Random.Range(0, mazeSize);
+			// don't spawn holes in walls
+			if (mapData[z, x]) {
+				i--;
+				continue;
+			}
+			holes[z, x] = true;
+		}
+
+		return holes;
 	}
 
 	// allow us to instantiate something and immediately make it the child of this game object's
