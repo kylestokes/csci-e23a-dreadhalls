@@ -15,14 +15,17 @@ public class DespawnOnHeight : MonoBehaviour
     void Update()
     {
         // switch to Game Over scene if below floor
-		if (
-            transform.position.y < 0 ||
-            transform.parent.transform.position.y < 0
-        ) {
+		if (transform.position.y < 0) {
+            // pause audio
             AudioSource audio = DontDestroy.instance.GetComponents<AudioSource>()[0];
             audio.Pause();
             Destroy(DontDestroy.instance);
+
+            // load Play scene
             SceneManager.LoadScene("GameOver");
+
+            // reset maze level count
+            MazeUIController.maze = 0;
 		}
     }
 }
